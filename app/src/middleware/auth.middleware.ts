@@ -1,43 +1,78 @@
+// src/middlewares/validation.middleware.ts
 import { Request, Response, NextFunction } from 'express';
-import { extractTokenFromHeader, verifyToken, JWTPayload } from '../services/jwt.service'
-import User  from "../Persistence/users/user.model";
-import Role from "../Persistence/roles/role.model";
+import ProductWarehouse from '../models/productWhereHouse.model';
+import Customer from '../models/customer.model';
 
 /**
- * Middleware generator for JWT authentication and role-based access control.t
- *
- * @param {number[]} [allowedRoles=[]] - Array of allowed role IDs.
- * If empty, any authenticated user with a valid token is allowed.
- *
- * @returns {(req: Request, res: Response, next: NextFunction) => void}
- * Returns an Express middleware function that validates JWT and roles.
- *
- * @example
- * Protect route with authentication only
- * app.get("/profile", authMiddleware(), (req, res) => {
- *   res.json({ user: req.user })
- * })
- *
- * @example
- * Protect route with authentication + role restriction
- * app.post("/admin", authMiddleware([1]), (req, res) => {
- *   res.json({ message: "Welcome Admin" })
- * })
+ * Middleware to ensure there is sufficient stock in the selected warehouse for a product.
+ * Used before creating an Order (Requisito 3a, 6a).
+ * Assumes req.body contains an array of items: [{ product_id, warehouse_id, quantity }]
  */
-export const authMiddleware = (allowedRoles: number[] = []) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const token = extractTokenFromHeader(req.headers["authorization"])
-    if (!token) return res.status(401).json({ message: "No token provided" })
+export const validateStockForOrder = async (req: Request, res: Response, next: NextFunction) => {
+  const items = req.body.items as { product_id: number, warehouse_id: number, quantity: number }[];
 
-    const decoded = verifyToken(token)
-    if (!decoded) return res.status(403).json({ message: "Invalid token" })
+  if (!items || items.length === 0) {
+    return res.status(400).json({ message: 'Validation error: Order must contain at least one item.' });
+  }
 
-    req.User = decoded
+  try {
+    for (const item of items) {
+      if (!item.product_id || !item.warehouse_id || item.quantity <= 0) {
+          return res.status(400).json({ message: 'Validation error: All items must specify valid product_id, warehouse_id, and quantity (> 0).' });
+      }
 
-    if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.role_id)) {
-      return res.status(403).json({ message: "Access denied" })
+      // 1. Find the stock entry
+      const stockEntry = await ProductWarehouse.findOne({
+        where: {
+          id_product: item.product_id, 
+          id_where: item.warehouse_id, 
+        },
+      });
+
+      if (!stockEntry) {
+        return res.status(404).json({ message: `Validation error: Product ID ${item.product_id} not found in Warehouse ID ${item.warehouse_id}.` });
+      }
+
+      // 2. Check if stock is sufficient
+      const currentStock = stockEntry.get('stock') as number;
+
+      if (currentStock < item.quantity) {
+        return res.status(400).json({ 
+          message: `Validation error: Insufficient stock for Product ID ${item.product_id} in Warehouse ID ${item.warehouse_id}. Available: ${currentStock}, Requested: ${item.quantity}.` 
+        });
+      }
     }
 
-    next()
+    next();
+
+  } catch (error) {
+    console.error('Stock validation error:', error);
+    res.status(500).json({ message: 'Internal server error during stock validation.' });
   }
-}
+};
+
+/**
+ * Middleware to prevent registering a customer with a duplicate document number (Requisito 6b).
+ */
+export const checkDuplicateCustomerDocument = async (req: Request, res: Response, next: NextFunction) => {
+  const { document_number } = req.body;
+
+  if (!document_number) {
+    return res.status(400).json({ message: 'Validation error: Document number is required.' });
+  }
+
+  try {
+    const existingCustomer = await Customer.findOne({
+      where: { document_number },
+    });
+
+    if (existingCustomer) {
+      return res.status(409).json({ message: `Conflict: A customer with document number ${document_number} already exists.` });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Customer document validation error:', error);
+    res.status(500).json({ message: 'Internal server error during customer document validation.' });
+  }
+};

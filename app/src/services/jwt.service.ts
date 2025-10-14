@@ -1,35 +1,30 @@
-
-import jwt from 'jsonwebtoken';
+// src/services/jwt.service.ts
+import * as jwt from 'jsonwebtoken';
 import { envConfig } from '../config/env';
 
 /**
  * JWT payload interface.
- * Defines the structure of the data embedded in the JWT for seller authentication.
+ * Defines the structure of the data embedded in the JWT for user authentication.
  */
 export interface JWTPayload {
-  id_seller: number;
-  username: string;
-  role_id: number;
+  id_user: number;
+  roleName: string; // The role name (e.g., 'administrador')
   iat?: number;
   exp?: number;
 }
 
 /**
- * Generates a signed JWT token containing seller authentication data.
+ * Generates a signed JWT token containing user authentication data.
  *
- * @param payload - The seller data to embed in the token (id_seller, username, role_id)
+ * @param payload - The user data to embed in the token (id_user, roleName)
  * @returns JWT token as string
- *
- * @example
- * const token = generateToken({ id_seller: 1, username: 'seller123', role_id: 2 });
- * console.log(token); // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string => {
   try {
-    const token = jwt.sign(payload, envConfig.JWT_SECRET || '', {
+    const token = jwt.sign(payload, envConfig.JWT_SECRET, {
       expiresIn: envConfig.JWT_EXPIRES_IN,
-      issuer: 'api_node_ordenes_entrega',
-      audience: 'ordenes_entrega'
+      issuer: 'FHL-Logistics-API',
+      audience: 'FHL-Client'
     } as jwt.SignOptions);
     return token;
   } catch (error) {
@@ -42,18 +37,13 @@ export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string 
  *
  * @param token - The JWT token to verify
  * @returns The decoded JWTPayload if valid, or null if invalid/expired
- *
- * @example
- * const payload = verifyToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
- * if (payload) {
- *   console.log('Seller ID:', payload.id_seller);
- * }
  */
 export const verifyToken = (token: string): JWTPayload | null => {
   try {
+    // The explicit casting avoids the need for 'unknown as' in the middleware
     const decoded = jwt.verify(token, envConfig.JWT_SECRET, {
-      issuer: 'api_node_ordenes_entrega',
-      audience: 'ordenes_entrega'
+      issuer: 'FHL-Logistics-API',
+      audience: 'FHL-Client'
     }) as JWTPayload;
     return decoded;
   } catch (error) {
@@ -66,10 +56,6 @@ export const verifyToken = (token: string): JWTPayload | null => {
  *
  * @param authHeader - The value of the Authorization header (e.g., 'Bearer <token>')
  * @returns The token string if present, or null if not found/invalid
- *
- * @example
- * const token = extractTokenFromHeader('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
- * console.log(token); // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 export const extractTokenFromHeader = (authHeader: string | undefined): string | null => {
   if (!authHeader) {

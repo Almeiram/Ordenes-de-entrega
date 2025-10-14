@@ -1,82 +1,102 @@
-import Access from "../Persistence/accesses/access.model";
-import Role from "../Persistence/roles/role.model";
-import User from "../Persistence/users/user.model";
-import Product from "../Persistence/products/product.model";
-import ProductWarehouse from "../Persistence/productWhereHouse/productWhereHouse";
-import warehouse from "../Persistence/wherehouse/wherehouse.model";
-import Customer from "../Persistence/customers/customer.model";
-import Order from "../Persistence/orders/order.model";
-import OrderItem from "../Persistence/orderItems/orderItem.model";
+// src/config/associations.ts
+
+// Import all models
+import Access from "../models/access.model";
+import Role from "../models/role.model";
+import User from "../models/user.model";
+import Product from "../models/product.model";
+import ProductWarehouse from "../models/productWhereHouse.model";
+import Warehouse from "../models/wherehouse.model";
+import Customer from "../models/customer.model";
+import Order from "../models/order.model";
+import OrderItem from "../models/orderItem.model";
 
 export const applyAssociations = () => {
 
-  // Role and access (Role 1:N Access)
+  // --- 1. User/Authentication/Role Associations ---
+  
+  // 1a. User N:1 Role (User belongs to one Role)
   Role.hasMany(User, {
     foreignKey: "role_id",
-    as: "user",
+    as: "users",
   });
   User.belongsTo(Role, {
     foreignKey: "role_id",
-    as: "role",
+    as: "role", // Used in auth middleware
   });
 
-  // Users y Accesos (Access 1:1 User)
+  // 1b. User 1:1 Access (User has one Access entry)
   Access.hasOne(User, {
     foreignKey: "access_id",
-    as: "user",
+    as: "user_info", // Relationship from Access to User
   });
   User.belongsTo(Access, {
     foreignKey: "access_id",
-    as: "access",
+    as: "access_credentials", // Relationship from User to Access (for login)
   });
 
-  // warehouse and Products_warehouse (N:M a través de ProductWarehouse)
-  warehouse.belongsToMany(Product, {
-    through: ProductWarehouse,
-    foreignKey: "warehouse_id", // Foreign key in ProductWarehouse that points to warehouse
-    otherKey: "product_id", //Foreign key in ProductWarehouse pointing to Product
-    as: "products", // Alias ​​for the query from the Winery
-  });
 
-  // Product and Products_warehouse (N:M a través de ProductWarehouse)
-  Product.belongsToMany(warehouse, {
+  // --- 2. Inventory (Product/Warehouse) Associations ---
+
+  // 2a. Warehouse N:M Product (via ProductWarehouse)
+  Warehouse.belongsToMany(Product, {
     through: ProductWarehouse,
-    foreignKey: "product_id", // Foreign key in ProductWarehouse pointing to Product
-    otherKey: "warehouse_id", // Foreign key in ProductWarehouse that points to warehouse
-    as: "warehouses", // Alias ​​for query from Product
+    foreignKey: "warehouse_id",
+    otherKey: "product_id",
+    as: "products_in_stock",
+  });
+  Product.belongsToMany(Warehouse, {
+    through: ProductWarehouse,
+    foreignKey: "product_id",
+    otherKey: "warehouse_id",
+    as: "available_warehouses",
   });
   
-  // Asociaciones inversas para ProductWarehouse (Tabla intermedia)
-  ProductWarehouse.belongsTo(Product, { foreignKey: 'product_id', as: 'productInfo' });
-  ProductWarehouse.belongsTo(warehouse, { foreignKey: 'warehouse_id', as: 'warehouseInfo' });
+  // 2b. Direct associations for the intermediate table (for stock updates)
+  ProductWarehouse.belongsTo(Product, { foreignKey: 'product_id', as: 'product_data' });
+  ProductWarehouse.belongsTo(Warehouse, { foreignKey: 'warehouse_id', as: 'warehouse_data' });
 
-  // Customer y Order (La relación original 1:1 es corregida a 1:N, asumiendo un customer tiene muchas orders)
-  Customer.hasMany(Order, { // Corregido de hasOne a hasMany
-    foreignKey: "customer_id", // Se asume que Order tiene una columna 'customer_id'
+
+  // --- 3. Order Associations ---
+
+  // 3a. Customer 1:N Order (One customer has many orders)
+  Customer.hasMany(Order, { 
+    foreignKey: "customer_id", 
     as: "orders",
   });
   Order.belongsTo(Customer, {
-    foreignKey: "customer_id", // Se asume que Order tiene una columna 'customer_id'
-    as: "customer",
+    foreignKey: "customer_id", 
+    as: "customer_data",
   });
 
-  // Order and OrderItem (1:N, One Order has many items/products)
+  // 3b. Order 1:N OrderItem (One order has many items)
   Order.hasMany(OrderItem, {
-    foreignKey: 'order_id', // FK on OrderItem pointing to Order
+    foreignKey: 'order_id', 
     as: 'items',
   });
   OrderItem.belongsTo(Order, {
     foreignKey: 'order_id',
-    as: 'order',
+    as: 'order_data',
   });
 
-  // Product and OrderItem (1:N, One Product is in many order items)
+  // 3c. Product 1:N OrderItem (One product is in many order items)
   Product.hasMany(OrderItem, {
-    foreignKey: 'product_id', // FK on OrderItem pointing to Product
-    as: 'orderItems',
+    foreignKey: 'product_id', 
+    as: 'order_entries',
   });
   OrderItem.belongsTo(Product, {
     foreignKey: 'product_id',
-    as: 'product',
+    as: 'product_ordered',
   });
+
+  // 3d. OrderItem N:1 Warehouse (The item was dispatched from one specific warehouse)
+  OrderItem.belongsTo(Warehouse, {
+    foreignKey: 'warehouse_id',
+    as: 'dispatch_warehouse',
+  });
+  Warehouse.hasMany(OrderItem, {
+    foreignKey: 'warehouse_id',
+    as: 'dispatched_items',
+  });
+
 };
