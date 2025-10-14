@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { 
     verifyToken, isAdmin, isAdminOrAnalyst, validateOrderStatus 
-} from '../middleware/auth.middleware';
+} from '../middleware/validation.middleware';
 import * as Controller from '../controllers/auth.controller';
 
 const router = Router();

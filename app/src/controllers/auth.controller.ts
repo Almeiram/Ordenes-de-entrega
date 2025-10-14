@@ -6,7 +6,7 @@ import User from '../models/user.model';
 import Role from '../models/role.model';
 import Access from '../models/access.model';
 import sequelize from '../config/database';
-import { checkDuplicateUserDocument } from '../middlewares/validation.middleware'; // Reuse validation
+import { checkDuplicateUserDocument } from '../middleware/validation.middleware'; // Reuse validation
 
 const SALT_ROUNDS = 10;
 

@@ -1,8 +1,8 @@
 // src/routes/client.routes.ts
 import { Router } from 'express';
 import clientController from '../controllers/customer.controller';
-import { authMiddleware } from '../middleware/auth.middleware';
-import { checkDuplicateCustomerDocument } from '../middleware/auth.middleware';
+import { authMiddleware } from '../middleware/validation.middleware';
+import { checkDuplicateCustomerDocument } from '../middleware/validation.middleware';
 
 const router = Router();
 

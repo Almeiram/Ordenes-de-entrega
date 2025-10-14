@@ -1,7 +1,7 @@
 // src/controllers/customer.controller.ts
 import { Request, Response } from 'express';
 import Customer from '../models/customer.model';
-import { checkDuplicateCustomerDocument } from '../middlewares/validation.middleware'; 
+import { checkDuplicateCustomerDocument } from '../middleware/validation.middleware'; 
 
 // NOTE: checkDuplicateCustomerDocument middleware must be used in the route before createClient
 

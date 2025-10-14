@@ -25,7 +25,7 @@ export const validateStockForOrder = async (req: Request, res: Response, next: N
       const stockEntry = await ProductWarehouse.findOne({
         where: {
           id_product: item.product_id, 
-          id_where: item.warehouse_id, 
+          id_wherehouse: item.warehouse_id, 
         },
       });
 
