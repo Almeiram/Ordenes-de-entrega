@@ -7,14 +7,14 @@ const router = Router();
  * @openapi
  * tags:
  *   name: Auth
- *   description: Endpoints for user authentication
+ *   description: Endpoints para autenticación de usuarios
  */
 
 /**
  * @openapi
  * /auth/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Registrar un nuevo usuario
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -24,11 +24,11 @@ const router = Router();
  *             $ref: '#/components/schemas/Register'
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: Usuario creado exitosamente
  *       400:
- *         description: Email already exists
+ *         description: Email ya existe
  *       500:
- *         description: Internal server error
+ *         description: Error interno del servidor
  */
 router.post('/register', register);
 
@@ -36,7 +36,7 @@ router.post('/register', register);
  * @openapi
  * /auth/login:
  *   post:
- *     summary: Login user and get JWT token
+ *     summary: Iniciar sesión y obtener token JWT
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -46,48 +46,25 @@ router.post('/register', register);
  *             $ref: '#/components/schemas/Login'
  *     responses:
  *       200:
- *         description: Successful login
+ *         description: Inicio de sesión exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *       401:
- *         description: Invalid credentials
+ *         description: Credenciales inválidas
  *       404:
- *         description: User not found
+ *         description: Usuario no encontrado
  *       500:
- *         description: Internal server error
+ *         description: Error interno del servidor
  */
 router.post('/login', login);
 
 export default router;
-
-/**
- * @openapi
- * components:
- *   schemas:
- *     Register:
- *       type: object
- *       required:
- *         - username
- *         - password
- *         - roleId
- *       properties:
- *         username:
- *           type: string
- *           example: "John Doe"
- *         password:
- *           type: string
- *           example: "password123"
- *         roleId:
- *           type: integer
- *           example: 1
- *     Login:
- *       type: object
- *       required:
- *         - username
- *         - password
- *       properties:
- *         username:
- *           type: string
- *           example: "john.doe"
- *         password:
- *           type: string
- *           example: "password123"
- */

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { extractTokenFromHeader, verifyToken, JWTPayload } from '../services/jwt.service'
+import { extractTokenFromHeader, verifyToken} from '../services/jwt.service'
 
 // Middleware to authenticate and authorize users based on roles
 export const authMiddleware = (allowedRoles: number[] = []) => {

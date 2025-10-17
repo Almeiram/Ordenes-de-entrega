@@ -21,14 +21,11 @@ interface RegisterRequestBody {
  * Handles user registration logic: creates a new user and returns their data.
  */
 export const register = async (req: Request<{}, {}, RegisterRequestBody>, res: Response) => {
-    const { username, password, roleId } = req.body;
+    const { username, password} = req.body;
 
-    if (!username || !password || !roleId) {
+    if (!username || !password) {
         return res.status(400).json({ message: 'All fields are required.' });
     }
-
-    const role = await Role.findOne({ where: { id_role: roleId } });
-    if (!role) return res.status(400).json({ message: "Role does not exist" });
 
     try {
         // Check if the user already exists
@@ -44,7 +41,7 @@ export const register = async (req: Request<{}, {}, RegisterRequestBody>, res: R
         const newUser = await Access.create({
             username: username,
             password: hashedPassword,
-            role_id: roleId,
+            role_id: 2,
             is_active: true,
         });
 
