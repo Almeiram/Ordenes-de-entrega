@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Access from '../models/access.model';
+import Role from '../models/role.model';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'OMGNEWTESTJ4J4';
 // Is like DTO
@@ -23,8 +24,11 @@ export const register = async (req: Request<{}, {}, RegisterRequestBody>, res: R
     const { username, password, roleId } = req.body;
 
     if (!username || !password || !roleId) {
-        return res.status(400).json({ message: 'Username, password and roleId are required.' });
+        return res.status(400).json({ message: 'All fields are required.' });
     }
+
+    const role = await Role.findOne({ where: { id_role: roleId } });
+    if (!role) return res.status(400).json({ message: "Role does not exist" });
 
     try {
         // Check if the user already exists
