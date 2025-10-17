@@ -1,0 +1,27 @@
+components:
+  schemas:
+    Register:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: cata
+        password:
+          type: string
+          example: "123456"
+
+    Login:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: cata
+        password:
+          type: string
+          example: "123456"
