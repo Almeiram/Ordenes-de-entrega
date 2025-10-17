@@ -65,28 +65,28 @@ export default router;
  *     Register:
  *       type: object
  *       required:
- *         - name
- *         - email
+ *         - username
  *         - password
+ *         - roleId
  *       properties:
- *         name:
+ *         username:
  *           type: string
  *           example: "John Doe"
- *         email:
- *           type: string
- *           example: "john.doe@example.com"
  *         password:
  *           type: string
  *           example: "password123"
+ *         roleId:
+ *           type: integer
+ *           example: 1
  *     Login:
  *       type: object
  *       required:
- *         - email
+ *         - username
  *         - password
  *       properties:
- *         email:
+ *         username:
  *           type: string
- *           example: "john.doe@example.com"
+ *           example: "john.doe"
  *         password:
  *           type: string
  *           example: "password123"
