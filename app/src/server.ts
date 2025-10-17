@@ -28,7 +28,7 @@ app.use('/rol', roleRoutes);
 
 // --- Swagger Documentation (Requisito 4) ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
-console.log(`Swagger documentation available at http://localhost:${envConfig.APP_PORT}/api`);
+console.log(`Swagger documentation available at http://localhost:${envConfig.APP_PORT}/api-docs`);
 
 // --- Health Check ---
 app.get('/', (req: Request, res: Response) => {
@@ -39,23 +39,3 @@ app.get('/', (req: Request, res: Response) => {
     });
 });
 
-/**
- * Initializes the database and starts the server.
- */
-const startServer = async () => {
-    try {
-        // Force synchronization only in development or for initial setup
-        const forceSync = envConfig.NODE_ENV !== 'production'; 
-
-        //Start Express server
-        app.listen(envConfig.DB_PORT, () => {
-            console.log(`Server is running on port http://localhost:${envConfig.DB_PORT}`);
-        });
-    } catch (error) {
-        console.error('Failed to start the server:', error);
-        process.exit(1);
-    }
-};
-
-// Start the application
-startServer();
