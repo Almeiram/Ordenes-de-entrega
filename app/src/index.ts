@@ -14,7 +14,7 @@ const start = async () => {
     await syncDB();
 
     app.listen(PORT, () => {
-      console.log(`Server listening on PORT ${PORT}`);
+      console.log(`Server listening on PORT http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error("Error conecting with DB :", error);

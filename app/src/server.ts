@@ -5,6 +5,7 @@ import router from './routes/auth.routes'; // Import routes from authentication
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import {swaggerDoc} from './config/swagger'; // Will be generated next
+import roleRoutes from "./routes/role.routes";
 
 // Import models to ensure associations are registered
 import './models/role.model';
@@ -22,11 +23,12 @@ app.use(cors()); // Enable CORS for development
 app.use(express.json()); // Body parser
 
 // --- Routes ---
-app.use('/api/v1', router);
+app.use('/auth', router);
+app.use('/rol', roleRoutes);
 
 // --- Swagger Documentation (Requisito 4) ---
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
-console.log(`Swagger documentation available at http://localhost:${envConfig.APP_PORT}/api-docs`);
+console.log(`Swagger documentation available at http://localhost:${envConfig.APP_PORT}/api`);
 
 // --- Health Check ---
 app.get('/', (req: Request, res: Response) => {
@@ -47,7 +49,7 @@ const startServer = async () => {
 
         //Start Express server
         app.listen(envConfig.DB_PORT, () => {
-            console.log(`Server is running on port ${envConfig.DB_PORT}`);
+            console.log(`Server is running on port http://localhost:${envConfig.DB_PORT}`);
         });
     } catch (error) {
         console.error('Failed to start the server:', error);
