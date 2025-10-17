@@ -1,24 +1,14 @@
-// src/services/jwt.service.ts
 import * as jwt from 'jsonwebtoken';
 import { envConfig } from '../config/env';
 
-/**
- * JWT payload interface.
- * Defines the structure of the data embedded in the JWT for user authentication.
- */
+
 export interface JWTPayload {
   id_user: number;
-  roleName: string; // The role name (e.g., 'administrador')
+  role_id: number; 
   iat?: number;
   exp?: number;
 }
 
-/**
- * Generates a signed JWT token containing user authentication data.
- *
- * @param payload - The user data to embed in the token (id_user, roleName)
- * @returns JWT token as string
- */
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string => {
   try {
     const token = jwt.sign(payload, envConfig.JWT_SECRET, {
@@ -32,12 +22,7 @@ export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>): string 
   }
 };
 
-/**
- * Verifies and decodes a JWT token.
- *
- * @param token - The JWT token to verify
- * @returns The decoded JWTPayload if valid, or null if invalid/expired
- */
+
 export const verifyToken = (token: string): JWTPayload | null => {
   try {
     // The explicit casting avoids the need for 'unknown as' in the middleware
@@ -51,12 +36,6 @@ export const verifyToken = (token: string): JWTPayload | null => {
   }
 };
 
-/**
- * Extracts the JWT token from an HTTP Authorization header.
- *
- * @param authHeader - The value of the Authorization header (e.g., 'Bearer <token>')
- * @returns The token string if present, or null if not found/invalid
- */
 export const extractTokenFromHeader = (authHeader: string | undefined): string | null => {
   if (!authHeader) {
     return null;

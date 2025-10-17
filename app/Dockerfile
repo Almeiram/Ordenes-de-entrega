@@ -1,26 +1,25 @@
-
-# Imagen base de Node.js
+# Image base de Node.js
 FROM node:20-alpine
 
-# Directorio de trabajo dentro del contenedor
+# Working directory inside the container
 WORKDIR /usr/src/app
 
-# Copia los archivos de definición de dependencias antes del codigo
+# Copy dependency definition files before the code
 COPY package*.json ./
 
-# Instala las dependencias
+# Install the dependencies
 RUN npm install
 
-# Copia el resto del código fuente (src, tsconfig.json, etc.)
-# COPY . .
+# Copy the rest of the source code (src, tsconfig.json, etc.)
+COPY . .
 
-# Exponer el puerto 
+# Expose the port
 EXPOSE 3000
 
-# Compila el código TypeScript a JavaScript
+# Compiles TypeScript code to JavaScript
 # RUN npm run build
 
 
-# Comando para ejecutar la aplicación
+# Command to run the application
 # CMD ["npm", "start"]
 CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]

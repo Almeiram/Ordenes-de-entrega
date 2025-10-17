@@ -1,4 +1,3 @@
-// src/Persistence/users/user.model.ts
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 
@@ -7,7 +6,6 @@ export interface UserAttributes {
   fullname: string;
   document_number: string;
   access_id: number;
-  role_id: number; // Added role_id for easier role query
   is_active: boolean;
 }
 
@@ -16,7 +14,6 @@ class User extends Model<UserAttributes> implements UserAttributes {
   public fullname!: string;
   public document_number!: string;
   public access_id!: number;
-  public role_id!: number;
   public is_active!: boolean;
 }
 
@@ -30,28 +27,19 @@ User.init(
     fullname: {
       type: DataTypes.STRING(150),
       allowNull: false,
+      unique: true,
     },
     document_number: {
       type: DataTypes.STRING(20),
       allowNull: false,
-      unique: true, // Requisito: documento único
     },
     access_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        unique: true,
-        references: {
-            model: 'accesses',
-            key: 'id_access',
-        },
-    },
-    role_id: { // Added role_id for easier role access via token and middleware
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'roles',
-            key: 'id_role',
-        },
+            references: {
+                model: 'accesses',
+                key: 'id_access',
+            },
     },
     is_active: {
       type: DataTypes.BOOLEAN,

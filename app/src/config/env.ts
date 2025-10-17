@@ -3,7 +3,7 @@ export const envConfig = {
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET as string,
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN as string,
   // Server Configuration
-  PORT: process.env.PORT || 3000,
+  APP_PORT: process.env.APP_PORT || 3000,
   NODE_ENV: process.env.NODE_ENV,
   
   // JWT Configuration

@@ -1,18 +1,25 @@
-import app from "./server";
-import { syncDB } from "./config/sync";
+import dotenv from "dotenv";
+import {app} from "./server";
+import { syncDB } from "./config/syncDB";
+import { envConfig, validateEnvConfig } from "./config/env";
 
-const PORT = process.env.APP_PORT;
+dotenv.config();
+
+const PORT = envConfig.APP_PORT;
 
 const start = async () => {
-    try {
-        await syncDB();
-        app.listen(PORT, () => {
-            console.log('Server listening in the port:3000')
-        });
-    } catch (error) {
-        console.error('Error to star the app: ', error);
-        process.exit(1);
-    }
-}
+  try {
+    validateEnvConfig();
+    
+    await syncDB();
+
+    app.listen(PORT, () => {
+      console.log(`Server listening on PORT ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Error conecting with DB :", error);
+    process.exit(1);
+  }
+};
 
 start();

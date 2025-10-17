@@ -1,5 +1,4 @@
-// src/Persistence/customers/customer.model.ts
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/database";
 
 export interface CustomerAttributes {
@@ -7,11 +6,12 @@ export interface CustomerAttributes {
   fullname: string;
   document_number: string;
   email: string;
-  address: string; // Added address based on requirement
+  address: string;
   is_active: boolean;
 }
+export interface CustomerCreationAttributes extends Optional<CustomerAttributes, 'id_customer'> {}
 
-class Customer extends Model<CustomerAttributes> implements CustomerAttributes {
+class Customer extends Model<CustomerAttributes, CustomerCreationAttributes> implements CustomerAttributes {
   public id_customer!: number;
   public fullname!: string;
   public document_number!: string;
@@ -34,7 +34,7 @@ Customer.init(
     document_number: {
       type: DataTypes.STRING(20),
       allowNull: false,
-      unique: true, // Requisito 6b
+      unique: true, 
     },
     email: {
       type: DataTypes.STRING(100),

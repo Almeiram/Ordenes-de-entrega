@@ -1,17 +1,22 @@
-// src/Persistence/accesses/access.model.ts
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/database";
 
 export interface AccessAttributes {
   id_access: number;
-  // NOTE: In a real system, 'username' and 'password_hash' would be here.
-  // For simplicity, we link directly to the User model, but keep this table for the 1:1 relationship with User.
-  password_hash: string;
+  username: string;
+  password: string;
+  role_id: number;
+  is_active: boolean;
 }
 
-class Access extends Model<AccessAttributes> implements AccessAttributes {
+export interface AccessCreationAttributes extends Optional<AccessAttributes, 'id_access'> {}
+
+class Access extends Model<AccessAttributes, AccessCreationAttributes> implements AccessAttributes {
   public id_access!: number;
-  public password_hash!: string;
+  public username!: string;
+  public password!: string;
+  public role_id!: number;
+  public is_active!: boolean;
 }
 
 Access.init(
@@ -21,11 +26,28 @@ Access.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    password_hash: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
+    username: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true,
     },
-    // The role_id is implicitly added through the association (Access N:1 Role)
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+            references: {
+                model: 'roles',
+                key: 'id_role',
+            },
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
   },
   {
     sequelize,
